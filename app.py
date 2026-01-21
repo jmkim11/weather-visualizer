@@ -4,8 +4,10 @@ import os
 
 app = Flask(__name__)
 
-# Mock API Key (Replace with real key)
-API_KEY = "mock_api_key"
+# OpenWeatherMap API Key (must be set in environment variable)
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
+if not API_KEY:
+    raise RuntimeError("OPENWEATHER_API_KEY environment variable is not set!")
 
 @app.route('/')
 def index():
@@ -15,17 +17,25 @@ def index():
 def get_weather():
     city = request.form.get('city')
     
-    # Mock Data for demonstration since we don't have a real API key active
-    # In production: url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-    
-    mock_weather = {
-        'Seoul': {'temp': 24, 'desc': 'Sunny', 'icon': '01d'},
-        'London': {'temp': 15, 'desc': 'Rainy', 'icon': '09d'},
-        'New York': {'temp': 20, 'desc': 'Cloudy', 'icon': '03d'}
-    }
-    
-    # Simple fuzzy match or default
-    data = mock_weather.get(city, {'temp': 22, 'desc': 'Clear', 'icon': '01d'})
+    url = (
+        "http://api.openweathermap.org/data/2.5/weather"
+        f"?q={city}&appid={API_KEY}&units=metric"
+    )
+
+    data = None
+    try:
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            payload = resp.json()
+            data = {
+                "temp": payload["main"]["temp"],
+                "desc": payload["weather"][0]["description"].title(),
+                "icon": payload["weather"][0]["icon"],
+            }
+        else:
+            data = {"temp": "?", "desc": "City not found", "icon": "01d"}
+    except requests.RequestException:
+        data = {"temp": "?", "desc": "Weather service error", "icon": "01d"}
     
     return render_template('index.html', weather=data, city=city)
 
