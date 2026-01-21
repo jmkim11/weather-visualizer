@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>날씨 시각화</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: linear-gradient(120deg, #89f7fe, #66a6ff); color: white; }
+        .container { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); }
+        input { padding: 10px; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; border-radius: 5px; border: none; background: #fff; color: #66a6ff; cursor: pointer; font-weight: bold; }
+        .result { margin-top: 2rem; }
+        h1 { margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌏 전 세계 날씨 확인</h1>
+        <form action="/weather" method="post">
+            <input type="text" name="city" placeholder="도시 이름 (예: Seoul)" required>
+            <button type="submit">검색</button>
+        </form>
+
+        {% if weather %}
+        <div class="result">
+            <h2>{{ city }}</h2>
+            <h3>{{ weather.temp }}°C</h3>
+            <p>{{ weather.desc }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
